@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,14 +35,21 @@ namespace CableCloud
         }
         private static void RealStart(CloudPortsRow row)
         {
+
             int outputPort = row.getOutPort();
             String nodeName = row.getNodeName();
             InSocket inputSocket = new InSocket(row.getInPort(),nodeName);
             OutSocket outputSocket = new OutSocket(outputPort, nodeName);
             SendingManager.addOutSocket(outputSocket);
             Console.WriteLine("Connected with node: "+nodeName+". Waiting for packets");
-            inputSocket.ListenForIncomingData();
-
+            try
+            {
+                inputSocket.ListenForIncomingData();
+            }
+            catch(SocketException e)
+            {
+                Console.WriteLine("Node " + nodeName + " disconnected.");
+            }
         }
     }
 }

@@ -29,7 +29,8 @@ namespace CableCloud
             lock (SyncObject)
             {
                 OutSocket outputSocket = getAssociatedSocket(destinationNodeName);
-                outputSocket.Send(dataWithLengthInformation);
+                if(outputSocket!=null)
+                    outputSocket.Send(dataWithLengthInformation);
             }
         }
 

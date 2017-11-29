@@ -30,7 +30,8 @@ namespace CableCloud
         }
         public void Send(byte[] array)
         {
-            outSocket.Send(array);
+            if(outSocket.Connected)
+                outSocket.Send(array);
         }
         private Socket createSocket(int port)
         {

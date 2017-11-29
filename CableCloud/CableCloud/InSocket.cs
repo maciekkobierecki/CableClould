@@ -13,8 +13,8 @@ namespace CableCloud
     {
         public static int PORT_NUMBER_SIZE = 4;
         private Socket inputSocket = null;
-        public Message messageOut = new Message();
-        public Message messageIn = new Message();
+        private Packet messageOut = null;
+        private Packet messageIn = null;
 
         private string nodeName;
         private int port;
@@ -52,21 +52,21 @@ namespace CableCloud
             int i = 1;
             while (true)
             {
-                int inputSize = ReceiveInputSize();
-                byte[] receivedData = receiveData(inputSize);
-                int sourcePort = GetSourcePort(receivedData);
-                Console.WriteLine("Received packet from node: " + nodeName);
-                Console.WriteLine("\n" + i++);
-                SendingManager.Send(receivedData, nodeName, sourcePort);
+                    int inputSize = ReceiveInputSize();
+                    byte[] receivedData = receiveData(inputSize);
+                    int sourcePort = GetSourcePort(receivedData);
+                    Console.WriteLine("Received packet from node: " + nodeName);
+                    Console.WriteLine("\n" + i++);
+                    SendingManager.Send(receivedData, nodeName, sourcePort);
             }
         }
         private int ReceiveInputSize()
         {
-            byte[] objectSize = new byte[4];
-            inputSocket.Receive(objectSize, 0, 4, SocketFlags.None);
-            int messageSize = BitConverter.ToInt32(objectSize, 0);
-            Console.WriteLine(messageSize);
-            return messageSize;
+                byte[] objectSize = new byte[4];
+                inputSocket.Receive(objectSize, 0, 4, SocketFlags.None);
+                int messageSize = BitConverter.ToInt32(objectSize, 0);
+                Console.WriteLine(messageSize);
+                return messageSize;    
         }
 
         private byte[] receiveData(int inputSize)
@@ -87,18 +87,18 @@ namespace CableCloud
 
 
 
-        private Message GetDeserializedMessage(byte[] b)
+        private Packet GetDeserializedMessage(byte[] b)
         {
-            Message m = new Message();
+            Packet m = null;
             MemoryStream memStream = new MemoryStream();
             BinaryFormatter binForm = new BinaryFormatter();
             memStream.Write(b, 0, b.Length);
             memStream.Seek(0, SeekOrigin.Begin);
-            m = (Message)binForm.Deserialize(memStream);
+            m = (Packet)binForm.Deserialize(memStream);
             return m;
         }
 
-        private byte[] GetSerializedMessage(Message mes)    //Serializacja bajtowa
+        private byte[] GetSerializedMessage(Packet mes)    //Serializacja bajtowa
         {
             BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
