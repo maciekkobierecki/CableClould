@@ -16,6 +16,7 @@ namespace CableCloud
         public const int SOURCE_NODE_NAME_POSITION = 0;
         public const int SOURCE_NODE_PORT_POSITION = 1;
         public const int DESTINATION_NODE_NAME_POSITION = 2;
+        public const int DESTINATION_NODE_PORT_POSITION = 3;
 
         private static List<LinksRow> connectionsBetweenNodes;
         private static List<CloudPortsRow> portsBetweenNodesAndCloud;
@@ -55,13 +56,15 @@ namespace CableCloud
             String sourceNodeName = null;
             String sourceNodePort = null;
             String destinationNodeName = null;
+            String destinationNodePort = null;
             while ((textLine = reader.ReadLine())!=null)
             {
                 parameters = textLine.Split(SEPARATOR);
                 sourceNodeName = parameters[SOURCE_NODE_NAME_POSITION];
                 sourceNodePort = parameters[SOURCE_NODE_PORT_POSITION];
                 destinationNodeName = parameters[DESTINATION_NODE_NAME_POSITION];
-                LinksRow row = createLinksRow(sourceNodeName, int.Parse(sourceNodePort), destinationNodeName);
+                destinationNodePort = parameters[DESTINATION_NODE_PORT_POSITION];
+                LinksRow row = createLinksRow(sourceNodeName, int.Parse(sourceNodePort), destinationNodeName, int.Parse(destinationNodePort));
                 connectionsBetweenNodes.Add(row);
             }
 
@@ -84,9 +87,9 @@ namespace CableCloud
             CloudPortsRow row = new CloudPortsRow(nodeName, inPort, outPort);
             return row;
         }
-        private static LinksRow createLinksRow(String sourceNodeName, int sourcePort, String destinationNode)
+        private static LinksRow createLinksRow(String sourceNodeName, int sourcePort, String destinationNode, int destinationPort)
         {
-            LinksRow row = new LinksRow(sourceNodeName, sourcePort, destinationNode);
+            LinksRow row = new LinksRow(sourceNodeName, sourcePort, destinationNode, destinationPort);
             return row;
         }
 
@@ -104,6 +107,22 @@ namespace CableCloud
                 }
             }
             return destinationNodeName;
+        }
+
+        public static int getDestinationPort(String sourceNodeName, int sourceNodePort)
+        {
+            int destinationNodePort=0;
+            for(int i=0; i<connectionsBetweenNodes.Count; i++)
+            {
+                LinksRow checkedRow = connectionsBetweenNodes.ElementAt(i);
+                String nodeName = checkedRow.getSourceNodeName();
+                int port = checkedRow.getSourceNodePort();
+                if (sourceNodeName.Equals(nodeName) && port == sourceNodePort)
+                {
+                    destinationNodePort = checkedRow.getDestinationNodePort();
+                }
+            }
+            return destinationNodePort;
         }
         public static List<CloudPortsRow> getPortsList()
         {

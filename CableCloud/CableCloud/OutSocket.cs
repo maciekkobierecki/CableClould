@@ -13,20 +13,24 @@ namespace CableCloud
         private Socket outSocket;
         private String nodeName;
         private int port;
+        private Boolean listening;
+        private TcpListener listener;
 
         public OutSocket(int port, String nodeName)
         {
             this.nodeName = nodeName;
             this.port = port;
-            waitForConnection();
 
         }
-        private void waitForConnection()
+        public void ListenForConnection()
         {
-            TcpListener listener = new TcpListener(IPAddress.Any,port);
-            listener.Start();
+            if (!listening)
+            {
+                listener = new TcpListener(IPAddress.Any, port);
+                listener.Start();
+                listening = true;
+            }
             outSocket = listener.AcceptSocket();
-            Console.WriteLine("connected");
         }
         public void Send(byte[] array)
         {

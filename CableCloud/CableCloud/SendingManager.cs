@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CableCloud
@@ -24,13 +25,27 @@ namespace CableCloud
 
         public static void Send(byte[] dataToSend, String sourceNode, int sourcePort)
         {
-            byte[] dataWithLengthInformation=containDataLengthInformation(dataToSend);
+            int destinationPort = ConnectionsTable.getDestinationPort(sourceNode, sourcePort);
+            byte[] destinationPortBytes = BitConverter.GetBytes(destinationPort);
+            swap(dataToSend, destinationPortBytes);
+            byte[] dataWithLengthInformation = containDataLengthInformation(dataToSend);
+
             String destinationNodeName = ConnectionsTable.getDestinationNodeName(sourceNode, sourcePort);
             lock (SyncObject)
             {
                 OutSocket outputSocket = getAssociatedSocket(destinationNodeName);
                 if(outputSocket!=null)
                     outputSocket.Send(dataWithLengthInformation);
+                Console.WriteLine("Sent to node " + outputSocket.getNodeName()+"to port "+destinationPort.ToString());
+              //  Console.WriteLine("{0} | Received packet from node: {1}", DateTime.Now, outputSocket.getNodeName());
+            }
+        }
+
+        private static void swap(byte[] data, byte[] port)
+        {
+            for(int i=0; i<4; i++)
+            {
+                data[i] = port[i];
             }
         }
 
@@ -39,6 +54,7 @@ namespace CableCloud
             int dataSize = dataToSend.Length;
             byte[] lengthInformation = BitConverter.GetBytes(dataSize);
             int completeDataLength = dataToSend.Length + lengthInformation.Length;
+            Console.WriteLine(completeDataLength);
             byte[] preparedData = combineArrays(dataToSend, lengthInformation);
             return preparedData;
             

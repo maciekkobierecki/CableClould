@@ -11,12 +11,14 @@ namespace CableCloud
         private String sourceNodeName;
         private int sourceNodePort;
         private String destinationNodeName;
+        private int destinationNodePort;
 
-        public LinksRow(String sourceNodeName, int sourceNodePort, String destinationNodeName)
+        public LinksRow(String sourceNodeName, int sourceNodePort, String destinationNodeName, int destinationNodePort)
         {
             this.sourceNodeName = sourceNodeName;
             this.sourceNodePort = sourceNodePort;
             this.destinationNodeName = destinationNodeName;
+            this.destinationNodePort = destinationNodePort;
         }
         public String getSourceNodeName()
         {
@@ -29,6 +31,10 @@ namespace CableCloud
         public String getDestinationNodeName()
         {
             return destinationNodeName;
+        }
+        public int getDestinationNodePort()
+        {
+            return destinationNodePort;
         }
     }
 }

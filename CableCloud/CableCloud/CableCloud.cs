@@ -35,21 +35,25 @@ namespace CableCloud
         }
         private static void RealStart(CloudPortsRow row)
         {
-
             int outputPort = row.getOutPort();
             String nodeName = row.getNodeName();
-            InSocket inputSocket = new InSocket(row.getInPort(),nodeName);
+            InSocket inputSocket = new InSocket(row.getInPort(), nodeName);
             OutSocket outputSocket = new OutSocket(outputPort, nodeName);
-            SendingManager.addOutSocket(outputSocket);
-            Console.WriteLine("Connected with node: "+nodeName+". Waiting for packets");
-            try
+            while (true)
             {
-                inputSocket.ListenForIncomingData();
-            }
-            catch(SocketException e)
-            {
-                Console.WriteLine("Node " + nodeName + " disconnected.");
-            }
+                inputSocket.ListenForConnection();
+                outputSocket.ListenForConnection();
+                SendingManager.addOutSocket(outputSocket);
+                Console.WriteLine("Connected with node: " + nodeName);
+                try
+                {
+                    inputSocket.ListenForIncomingData();
+                }
+                catch (SocketException e)
+                {
+                    Console.WriteLine("Node " + nodeName + " disconnected.");
+                }
+            }            
         }
     }
 }

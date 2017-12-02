@@ -50,7 +50,6 @@
     <Compile Include="CableCloud.cs" />
     <Compile Include="CloudPortsRow.cs" />
     <Compile Include="OutSocket.cs" />
-    <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LinksRow.cs" />
     <Compile Include="SendingManager.cs" />
@@ -60,14 +59,14 @@
     <None Include="bin\Debug\CableCloud.exe.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\tsst_client\tsst_client\tsst_client.csproj">
+    <Content Include="bin\Debug\CloudPorts.txt" />
+    <Content Include="bin\Debug\NodeLinks.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\TSSTClient-master\tsst_client\tsst_client.csproj">
       <Project>{f9a62193-8c61-4da8-bc84-ed8efdf2104a}</Project>
       <Name>tsst_client</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="bin\Debug\CloudPorts.txt" />
-    <Content Include="bin\Debug\NodeLinks.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
