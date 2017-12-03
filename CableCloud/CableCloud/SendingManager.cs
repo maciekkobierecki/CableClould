@@ -25,23 +25,26 @@ namespace CableCloud
 
         public static void Send(byte[] dataToSend, String sourceNode, int sourcePort)
         {
-            int destinationPort = ConnectionsTable.getDestinationPort(sourceNode, sourcePort);
-            byte[] destinationPortBytes = BitConverter.GetBytes(destinationPort);
-            swap(dataToSend, destinationPortBytes);
-            byte[] dataWithLengthInformation = containDataLengthInformation(dataToSend);
-
-            String destinationNodeName = ConnectionsTable.getDestinationNodeName(sourceNode, sourcePort);
             lock (SyncObject)
             {
+                int destinationPort = ConnectionsTable.getDestinationPort(sourceNode, sourcePort);
+                byte[] preparedData = PrepareDataToSend(sourceNode, sourcePort,destinationPort, dataToSend);
+                String destinationNodeName = ConnectionsTable.getDestinationNodeName(sourceNode, sourcePort);
                 OutSocket outputSocket = getAssociatedSocket(destinationNodeName);
-                if(outputSocket!=null)
-                    outputSocket.Send(dataWithLengthInformation);
-                Console.WriteLine("Sent to node " + outputSocket.getNodeName()+"to port "+destinationPort.ToString());
-              //  Console.WriteLine("{0} | Received packet from node: {1}", DateTime.Now, outputSocket.getNodeName());
+                outputSocket.Send(preparedData);
+                PrintSendInformation(outputSocket, destinationPort);
             }
         }
 
-        private static void swap(byte[] data, byte[] port)
+        private static byte[] PrepareDataToSend(String sourceNode, int sourcePort,int destinationPort, byte[] rawData)
+        {
+            byte[] destinationPortBytes = BitConverter.GetBytes(destinationPort);
+            SwapDestinationPort(rawData, destinationPortBytes);
+            byte[] dataWithLengthInformation = containDataLengthInformation(rawData);
+            return dataWithLengthInformation;
+        }
+
+        private static void SwapDestinationPort(byte[] data, byte[] port)
         {
             for(int i=0; i<4; i++)
             {
@@ -80,6 +83,11 @@ namespace CableCloud
                     socketToReturn = outputSocket;
             }
             return socketToReturn;
+        }
+
+        private static void PrintSendInformation(OutSocket outputSocket, int destinationPort)
+        {
+            Console.WriteLine("Sent to node " + outputSocket.getNodeName() + "to port " + destinationPort.ToString());
         }
     }
 }

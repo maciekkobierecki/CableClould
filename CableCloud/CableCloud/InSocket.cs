@@ -14,22 +14,13 @@ namespace CableCloud
     {
         public static int PORT_NUMBER_SIZE = 4;
         private Socket inputSocket = null;
-        private Packet messageOut = null;
-        private Packet messageIn = null;
         private TcpListener listener;
         private string nodeName;
         private int port;
         private Boolean listening;
 
-
-        public InSocket()
-        {
-            //Console.Title = "Cable Cloud";            
-        }
-
         public InSocket(int _port, String associatedNodeName)
         {
-            //GetNewInSocket(_port);
             nodeName = associatedNodeName;
             port = _port;
         }
@@ -37,8 +28,6 @@ namespace CableCloud
         private void GetNewInSocket(int p)
         {
             inputSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, p);
-            //inputSocket.Bind(remoteEP);
         }
         public void ListenForConnection()
         {
@@ -53,17 +42,15 @@ namespace CableCloud
 
         public void ListenForIncomingData()
         {
-            byte[] bytes = new byte[4];
-            int i = 1;
+            byte[] bytes;
             while (true)
             {
-                    int inputSize = ReceiveInputSize();
-                    byte[] receivedData = receiveData(inputSize);
-                    int sourcePort = GetSourcePort(receivedData);
-               // int destPort = getDestPort(receivedData);
+                bytes = new byte[4];
+                int inputSize = ReceiveInputSize();
+                byte[] receivedData = receiveData(inputSize);
+                int sourcePort = GetSourcePort(receivedData);
                 Console.WriteLine("Recieved from node " + nodeName+ "From port "+sourcePort.ToString());
-              //  Console.WriteLine("{0} | Received packet from node: {1}", DateTime.Now, nodeName);
-                    SendingManager.Send(receivedData, nodeName, sourcePort);
+                SendingManager.Send(receivedData, nodeName, sourcePort);
             }
         }
         private int getDestPort(byte[] receivedData)
@@ -86,7 +73,13 @@ namespace CableCloud
         private byte[] receiveData(int inputSize)
         {
             byte[] bytes = new byte[inputSize];
-            inputSocket.Receive(bytes, 0, inputSize, SocketFlags.None);
+            int totalReceived = 0;
+            do
+            {
+                int received = inputSocket.Receive(bytes, totalReceived, inputSize - totalReceived, SocketFlags.Partial);
+                totalReceived += received;
+            } while (totalReceived != inputSize);
+           
             return bytes;
         }
 
